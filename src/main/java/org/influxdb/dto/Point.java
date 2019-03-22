@@ -5,6 +5,9 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -233,7 +236,7 @@ public class Point {
 
       Class<? extends Object> clazz = pojo.getClass();
 
-      for (Field field : clazz.getDeclaredFields()) {
+      for (Field field : this.getAllFields(clazz)) {
 
         Column column = field.getAnnotation(Column.class);
 
@@ -252,6 +255,14 @@ public class Point {
       }
 
       return this;
+    }
+
+    private List<Field> getAllFields(final Class<? extends Object> clazz) {
+      List<Field> fields = new ArrayList<>();
+      for (Class<? extends Object> c = clazz; c != null; c = c.getSuperclass()) {
+        fields.addAll(Arrays.asList(c.getDeclaredFields()));
+      }
+      return fields;
     }
 
     private void addFieldByAttribute(final Object pojo, final Field field, final Column column,
