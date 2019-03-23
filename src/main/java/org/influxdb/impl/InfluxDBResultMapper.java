@@ -25,6 +25,8 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -219,7 +221,7 @@ public class InfluxDBResultMapper {
 
       Class<?> c = clazz;
       while (c != null) {
-        for (Field field : c.getDeclaredFields()) {
+        for (Field field : getAllFields(c)) {
           Column colAnnotation = field.getAnnotation(Column.class);
           if (colAnnotation != null) {
             influxColumnAndFieldMap.put(colAnnotation.name(), field);
@@ -228,6 +230,14 @@ public class InfluxDBResultMapper {
         c = c.getSuperclass();
       }
     }
+  }
+
+  private List<Field> getAllFields(final Class<?> clazz) {
+    List<Field> fields = new ArrayList<>();
+    for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+      fields.addAll(Arrays.asList(c.getDeclaredFields()));
+    }
+    return fields;
   }
 
   String getMeasurementName(final Class<?> clazz) {
